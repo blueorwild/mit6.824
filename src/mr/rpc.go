@@ -1,29 +1,49 @@
 package mr
 
 //
-// RPC definitions.
-//
-// remember to capitalize all names.
-//
+// 用于rpc请求和返回的参数
+// 这里主要定义worker向master请求任务和报告任务完成的rpc的参数
+// 
 
 import "os"
 import "strconv"
 
-//
-// example to show how to declare the arguments
-// and reply for an RPC.
-//
+// 任务类型
+const (
+	Map = "Map"
+	Reduce = "Reduce"
+	Wait = "Wait"   // 暂时无任务
+	Exit = "Exit"      // 所有任务已完成，可以退出
+)
 
-type ExampleArgs struct {
-	X int
+// 请求任务参数（worker 向 master 请求任务）
+type RequestTaskArgs struct{
 }
 
-type ExampleReply struct {
-	Y int
+// 请求任务回复（master 向 worker 颁发任务）
+type RequestTaskReply struct{
+	TaskType string
+
+	// 用于map任务
+	MapTaskNumber int
+	FileName string
+	NReduce int
+
+	// 用于reduce任务
+	ReduceTaskNumber int
+	NMap int
 }
 
-// Add your RPC definitions here.
+// 报告任务完成参数（worker 向 master 报告任务完成）
+type DoneTaskArgs struct{
+	TaskType   string
+	TaskNumber int
+	FileNames  []string    // 若是reduce任务该数组仅有一个元素
+}
 
+// 报告任务完成回复（master 向 worker 回复）
+type DoneTaskReply struct{
+}
 
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the master.
